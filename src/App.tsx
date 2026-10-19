@@ -45,7 +45,7 @@ const ROUTES: [string, (p: Record<string, string>) => JSX.Element, boolean?][] =
 
 export default function App() {
   const [path] = useHashRoute();
-  const { loading } = useAuth();
+  const { loading, loadError, refresh, user } = useAuth();
 
   let page: JSX.Element = <NotFound />;
   for (const [pattern, render] of ROUTES) {
@@ -59,6 +59,12 @@ export default function App() {
   return (
     <Layout path={path}>
       <div className="container page">
+        {user && loadError && (
+          <div className="notice error" role="alert">
+            <p style={{ color: '#ffb3b3', margin: '0 0 10px' }}>{loadError}</p>
+            <button className="btn sm" onClick={() => void refresh()}>Qayta urinish</button>
+          </div>
+        )}
         {loading ? <Loading /> : page}
       </div>
     </Layout>

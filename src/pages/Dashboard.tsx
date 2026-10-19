@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase, ACCOUNT_COLS } from '../lib/supabase';
 import { useAuth, type Account } from '../lib/auth';
 import { KIND_LABEL, KIND_PATH, NEEDS_APPROVAL, EMPLOYMENT, WORK_MODE, VACANCY_CATEGORIES, type AccountKind } from '../lib/constants';
-import { Empty, ErrorBox, StatusBadge, errMsg, fmtDate, fmtMoney } from '../components/ui';
+import { Empty, ErrorBox, Loading, StatusBadge, errMsg, fmtDate, fmtMoney } from '../components/ui';
 import { go } from '../lib/router';
 import { useRegions } from '../lib/regions';
 
@@ -14,7 +14,7 @@ interface Offer { id: string; from_account_id: string; to_account_id: string; ti
 interface App { id: string; vacancy_id: string; applicant_account_id: string; status: string; message: string | null; created_at: string }
 
 export function Dashboard() {
-  const { accounts, refresh } = useAuth();
+  const { accounts, refresh, accountsReady } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const missing = ALL_KINDS.filter((k) => !accounts.some((a) => a.kind === k));
@@ -24,6 +24,8 @@ export function Dashboard() {
     const { error } = await supabase.rpc('submit_account', { p_account: id });
     if (error) setError(errMsg(error)); else { setNotice('Tekshiruvga yuborildi.'); await refresh(); }
   };
+
+  if (!accountsReady) return <Loading label="Akkauntlaringiz yuklanmoqda…" />;
 
   return (
     <section aria-labelledby="dash-title">
