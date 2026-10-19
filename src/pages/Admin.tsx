@@ -213,7 +213,7 @@ function Audit() {
 }
 
 // Rahbar only: grant/revoke admin role by email. Server enforces the same rule.
-function StaffPanel() {
+export function StaffPanel() {
   const [rows, setRows] = useState<{ user_id: string; email: string; role: string; created_at: string }[] | null>(null);
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<'admin' | 'owner'>('admin');

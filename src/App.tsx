@@ -12,6 +12,7 @@ import { Dashboard } from './pages/Dashboard';
 import { Inbox, Chat } from './pages/Inbox';
 import { Support } from './pages/Support';
 import { Admin } from './pages/Admin';
+import { Control } from './pages/Control';
 import { Legal } from './pages/Legal';
 import { NotFound } from './pages/NotFound';
 import { RequireAuth } from './components/RequireAuth';
@@ -40,6 +41,7 @@ const ROUTES: [string, (p: Record<string, string>) => JSX.Element, boolean?][] =
   ['/chat/:id', (p) => <RequireAuth><Chat id={p.id} /></RequireAuth>],
   ['/support', () => <RequireAuth><Support /></RequireAuth>],
   ['/admin', () => <RequireAuth admin><Admin /></RequireAuth>],
+  ['/boshqaruv', () => <RequireAuth admin><Control /></RequireAuth>],
   ['/legal/:doc', (p) => <Legal doc={p.doc} />]
 ];
 

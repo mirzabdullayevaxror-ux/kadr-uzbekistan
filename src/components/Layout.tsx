@@ -26,7 +26,7 @@ export function Layout({ path, children }: { path: string; children: ReactNode }
           {user ? (
             <div className="row">
               <a className="btn sm ghost" href="#/dashboard">Kabinet</a>
-              {isAdmin && <a className="btn sm ghost" href="#/admin">Admin</a>}
+              {isAdmin && <a className="btn sm ghost" href="#/boshqaruv">Boshqaruv</a>}
               <button className="btn sm" onClick={async () => { await signOut(); go('/'); }}>Chiqish</button>
             </div>
           ) : (
