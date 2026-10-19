@@ -14,7 +14,7 @@ interface Offer { id: string; from_account_id: string; to_account_id: string; ti
 interface App { id: string; vacancy_id: string; applicant_account_id: string; status: string; message: string | null; created_at: string }
 
 export function Dashboard() {
-  const { accounts, refresh, accountsReady } = useAuth();
+  const { accounts, refresh, accountsReady, isOwner } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const missing = ALL_KINDS.filter((k) => !accounts.some((a) => a.kind === k));
@@ -48,7 +48,7 @@ export function Dashboard() {
                 <h3 style={{ margin: 0 }}>{a.display_name}</h3>
                 <StatusBadge status={a.status} />
               </div>
-              <p className="small" style={{ margin: 0 }}>{KIND_LABEL[a.kind]} · @{a.username}</p>
+              <p className="small" style={{ margin: 0 }}>{isOwner && a.kind === 'mijoz' ? 'Rahbar' : KIND_LABEL[a.kind]} · @{a.username}</p>
               {a.status === 'rejected' || a.status === 'needs_info' ? (
                 <div className="notice error small">Sabab: {a.reject_reason}</div>
               ) : null}
