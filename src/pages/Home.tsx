@@ -14,12 +14,9 @@ const ECOSYSTEM = [
 ];
 
 const SECTORS = [
-  { title: 'Videografiya', text: 'Kamera, yorug‘lik va kadr — loyihaning ko‘zi.', icon: (
-    <svg viewBox="0 0 120 80" role="img" aria-label="Kamera"><rect x="10" y="22" width="70" height="42" rx="8" fill="#2a2a2a" stroke="#f5a524" strokeWidth="3"/><path d="M80 36l30-14v40l-30-14z" fill="#f5a524"/><circle cx="45" cy="43" r="12" fill="none" stroke="#f5a524" strokeWidth="3"/></svg>) },
-  { title: 'Montaj', text: 'Hikoyani to‘g‘ri ritm bilan yig‘ish.', icon: (
-    <svg viewBox="0 0 120 80" role="img" aria-label="Montaj"><rect x="8" y="16" width="104" height="48" rx="6" fill="#1b1b1b" stroke="#333"/><rect x="14" y="22" width="26" height="36" rx="3" fill="#f5a524"/><rect x="46" y="22" width="26" height="36" rx="3" fill="#3a3a3a"/><rect x="78" y="22" width="26" height="36" rx="3" fill="#3a3a3a"/><path d="M8 72h104" stroke="#f5a524" strokeWidth="3"/></svg>) },
-  { title: 'Ovoz va studiya', text: 'Mikrofon, audio va podkast sifati.', icon: (
-    <svg viewBox="0 0 120 80" role="img" aria-label="Mikrofon"><rect x="48" y="10" width="24" height="40" rx="12" fill="#f5a524"/><path d="M34 40a26 26 0 0 0 52 0" fill="none" stroke="#888" strokeWidth="3"/><path d="M60 66v8M46 74h28" stroke="#888" strokeWidth="3"/></svg>) }
+  { title: 'Videografiya', text: 'Kamera, yorug‘lik va kadr — loyihaning ko‘zi.', img: 'images/camera-forest.jpg', alt: 'Kamera bilan suratga olish' },
+  { title: 'Fotografiya', text: 'Kompozitsiya, yorug‘lik va lahza.', img: 'images/photographer.jpg', alt: 'Fotograf kamera bilan' },
+  { title: 'Montaj', text: 'Hikoyani to‘g‘ri ritm bilan yig‘ish.', img: 'images/editing-dark.jpg', alt: 'Video montaj dasturi ekrani' }
 ];
 
 export function Home() {
@@ -61,7 +58,7 @@ export function Home() {
         <div className="grid" style={{ marginTop: 16 }}>
           {SECTORS.map((x) => (
             <div key={x.title} className="card">
-              <div style={{ background: '#111', borderRadius: 10, padding: 10, marginBottom: 12 }}>{x.icon}</div>
+              <img src={x.img} alt={x.alt} loading="lazy" style={{ width: '100%', aspectRatio: '4 / 3', objectFit: 'cover', borderRadius: 10, marginBottom: 12 }} />
               <h3 style={{ margin: '0 0 6px' }}>{x.title}</h3>
               <p className="small" style={{ margin: 0 }}>{x.text}</p>
             </div>
