@@ -39,6 +39,7 @@ interface AuthState {
   session: Session | null;
   user: User | null;
   isAdmin: boolean;
+  isOwner: boolean;
   accounts: Account[];
   refresh: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -66,11 +67,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
   const [accounts, setAccounts] = useState<Account[]>([]);
 
   const load = useCallback(async (s: Session | null) => {
     if (!s) {
       setIsAdmin(false);
+      setIsOwner(false);
       setAccounts([]);
       setLoadError(null);
       setAccountsReady(true);
@@ -87,7 +90,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       );
       if (roles.error) throw roles.error;
       if (accs.error) throw accs.error;
-      setIsAdmin((roles.data ?? []).some((r) => r.role === 'admin'));
+      const rs = (roles.data ?? []).map((r) => r.role);
+      setIsOwner(rs.includes('owner'));
+      setIsAdmin(rs.includes('admin') || rs.includes('owner'));
       setAccounts((accs.data ?? []) as unknown as Account[]);
       setLoadError(null);
     } catch (e) {
@@ -133,7 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <Ctx.Provider value={{
       loading, accountsReady, loadError, session, user: session?.user ?? null,
-      isAdmin, accounts, refresh, signOut
+      isAdmin, isOwner, accounts, refresh, signOut
     }}>
       {children}
     </Ctx.Provider>

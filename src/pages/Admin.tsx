@@ -3,17 +3,20 @@ import { supabase, ACCOUNT_COLS } from '../lib/supabase';
 import type { Account } from '../lib/auth';
 import { KIND_LABEL, STATUS_LABEL, TICKET_CATEGORIES } from '../lib/constants';
 import { Empty, ErrorBox, Loading, StatusBadge, errMsg, fmtDate } from '../components/ui';
+import { useAuth } from '../lib/auth';
 
-type Tab = 'accounts' | 'vacancies' | 'tickets' | 'audit';
-const TABS: [Tab, string][] = [['accounts', 'Akkauntlar'], ['vacancies', 'E’lonlar'], ['tickets', 'Support'], ['audit', 'Audit log']];
+type Tab = 'accounts' | 'vacancies' | 'tickets' | 'audit' | 'staff';
+const TABS: [Tab, string][] = [['accounts', 'Akkauntlar'], ['vacancies', 'E’lonlar'], ['tickets', 'Support'], ['audit', 'Audit log'], ['staff', 'Adminlar']];
 
 export function Admin() {
   const [tab, setTab] = useState<Tab>('accounts');
+  const { isOwner } = useAuth();
+  const tabs = TABS.filter(([k]) => k !== 'staff' || isOwner);
   return (
     <section aria-labelledby="adm-title">
       <h1 id="adm-title">Admin panel</h1>
       <div className="tabs" role="tablist">
-        {TABS.map(([k, label]) => (
+        {tabs.map(([k, label]) => (
           <button key={k} role="tab" aria-selected={tab === k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>{label}</button>
         ))}
       </div>
@@ -21,6 +24,7 @@ export function Admin() {
       {tab === 'vacancies' && <VacancyQueue />}
       {tab === 'tickets' && <Tickets />}
       {tab === 'audit' && <Audit />}
+      {tab === 'staff' && isOwner && <StaffPanel />}
     </section>
   );
 }
@@ -204,6 +208,69 @@ function Audit() {
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+// Rahbar only: grant/revoke admin role by email. Server enforces the same rule.
+function StaffPanel() {
+  const [rows, setRows] = useState<{ user_id: string; email: string; role: string; created_at: string }[] | null>(null);
+  const [email, setEmail] = useState('');
+  const [role, setRole] = useState<'admin' | 'owner'>('admin');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [ok, setOk] = useState<string | null>(null);
+
+  const load = async () => {
+    const { data, error } = await supabase.rpc('list_staff');
+    if (error) { setError(errMsg(error)); return; }
+    setRows((data ?? []) as { user_id: string; email: string; role: string; created_at: string }[]);
+  };
+  useEffect(() => { void load(); }, []);
+
+  const change = async (grant: boolean) => {
+    setError(null); setOk(null);
+    if (!email.trim()) { setError('Email kiriting'); return; }
+    setBusy(true);
+    const { error } = await supabase.rpc('set_user_role_by_email', { p_email: email.trim(), p_role: role, p_grant: grant });
+    setBusy(false);
+    if (error) { setError(errMsg(error)); return; }
+    setOk(`${email.trim()} uchun ${role === 'owner' ? 'rahbar' : 'admin'} roli ${grant ? 'berildi' : 'olib tashlandi'}`);
+    setEmail('');
+    void load();
+  };
+
+  return (
+    <div className="stack">
+      <div className="card">
+        <h2 style={{ marginTop: 0 }}>Rol berish</h2>
+        <p className="small">Foydalanuvchi avval saytda ro‘yxatdan o‘tgan bo‘lishi kerak.</p>
+        <div className="row" style={{ flexWrap: 'wrap', gap: 8 }}>
+          <input placeholder="email@misol.uz" value={email} onChange={(e) => setEmail(e.target.value)} style={{ flex: 1, minWidth: 200 }} />
+          <select value={role} onChange={(e) => setRole(e.target.value as 'admin' | 'owner')}>
+            <option value="admin">Admin</option>
+            <option value="owner">Rahbar</option>
+          </select>
+          <button className="btn primary" disabled={busy} onClick={() => void change(true)}>Berish</button>
+          <button className="btn" disabled={busy} onClick={() => void change(false)}>Olib tashlash</button>
+        </div>
+        {ok && <div className="notice ok" role="status" style={{ marginTop: 12 }}>{ok}</div>}
+        {error && <div className="notice error" role="alert" style={{ marginTop: 12 }}>{error}</div>}
+      </div>
+      {rows === null ? <Loading /> : rows.length === 0 ? <Empty>Hozircha admin yo‘q</Empty> : (
+        <table className="table">
+          <thead><tr><th>Email</th><th>Rol</th><th>Berilgan</th></tr></thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={`${r.user_id}-${r.role}`}>
+                <td>{r.email}</td>
+                <td>{r.role === 'owner' ? 'Rahbar' : 'Admin'}</td>
+                <td>{fmtDate(r.created_at)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }

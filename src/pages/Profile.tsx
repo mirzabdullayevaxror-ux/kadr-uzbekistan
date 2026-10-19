@@ -15,6 +15,7 @@ export function Profile({ kind, username }: { kind: AccountKind; username: strin
   const [acc, setAcc] = useState<Account | null | undefined>(undefined);
   const [contact, setContact] = useState<Contact | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [rahbar, setRahbar] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -25,6 +26,10 @@ export function Profile({ kind, username }: { kind: AccountKind; username: strin
         if (error) { setError(errMsg(error)); return; }
         const row = (data ?? null) as unknown as Account | null;
         setAcc(row);
+        if (row) {
+          const { data: r } = await supabase.rpc('is_rahbar_account', { p_account: row.id });
+          if (alive) setRahbar(r === true);
+        }
         if (row && row.status === 'approved') {
           const { data: c } = await supabase.rpc('get_public_contact', { p_account: row.id });
           if (alive) setContact(((c as Contact[]) ?? [])[0] ?? null);
@@ -57,7 +62,10 @@ export function Profile({ kind, username }: { kind: AccountKind; username: strin
           <div className="row">
             <Avatar name={acc.display_name} src={acc.avatar_url} />
             <div>
-              <h1 id="p-title" style={{ fontSize: 28, margin: 0 }}>{acc.display_name}</h1>
+              <h1 id="p-title" style={{ fontSize: 28, margin: 0 }}>
+                {rahbar && <span style={{ color: '#f5a524', marginRight: 8 }}>Rahbar</span>}
+                {acc.display_name}
+              </h1>
               <p className="small" style={{ margin: '4px 0 0' }}>
                 {KIND_LABEL[acc.kind]} · @{acc.username}
                 {acc.is_verified && <span className="badge ok" style={{ marginLeft: 8 }}>Verified</span>}
