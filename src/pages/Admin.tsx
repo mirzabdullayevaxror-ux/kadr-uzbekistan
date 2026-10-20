@@ -135,7 +135,7 @@ function VacancyQueue() {
   );
 }
 
-function Tickets() {
+export function Tickets() {
   const [items, setItems] = useState<{ id: string; subject: string; category: string; status: string; created_at: string }[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState<string | null>(null);

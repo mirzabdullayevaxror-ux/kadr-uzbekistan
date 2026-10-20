@@ -47,7 +47,7 @@ const ROUTES: [string, (p: Record<string, string>) => JSX.Element, boolean?][] =
 
 export default function App() {
   const [path] = useHashRoute();
-  const { loading, loadError, refresh, user } = useAuth();
+  const { loading, loadError, refresh, user, isBanned, signOut } = useAuth();
 
   let page: JSX.Element = <NotFound />;
   for (const [pattern, render] of ROUTES) {
@@ -67,7 +67,16 @@ export default function App() {
             <button className="btn sm" onClick={() => void refresh()}>Qayta urinish</button>
           </div>
         )}
-        {loading ? <Loading /> : page}
+        {user && isBanned && path !== '/support' ? (
+          <div className="notice error" role="alert" style={{ padding: 20 }}>
+            <h2 style={{ marginTop: 0 }}>Akkauntingiz bloklangan</h2>
+            <p>Platformadan foydalanish cheklangan. Savollar bo‘lsa, support orqali murojaat qiling.</p>
+            <div className="row" style={{ gap: 8 }}>
+              <a className="btn" href="#/support">Support</a>
+              <button className="btn" onClick={() => void signOut()}>Chiqish</button>
+            </div>
+          </div>
+        ) : loading ? <Loading /> : page}
       </div>
     </Layout>
   );

@@ -40,6 +40,7 @@ interface AuthState {
   user: User | null;
   isAdmin: boolean;
   isOwner: boolean;
+  isBanned: boolean;
   accounts: Account[];
   refresh: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -68,12 +69,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
+  const [isBanned, setIsBanned] = useState(false);
   const [accounts, setAccounts] = useState<Account[]>([]);
 
   const load = useCallback(async (s: Session | null) => {
     if (!s) {
       setIsAdmin(false);
       setIsOwner(false);
+      setIsBanned(false);
       setAccounts([]);
       setLoadError(null);
       setAccountsReady(true);
@@ -81,15 +84,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     setAccountsReady(false);
     try {
-      const [roles, accs] = await withTimeout(
+      const [roles, accs, ban] = await withTimeout(
         Promise.all([
           supabase.from('user_roles').select('role').eq('user_id', s.user.id),
-          supabase.from('accounts').select(ACCOUNT_COLS).eq('owner_id', s.user.id).order('created_at')
+          supabase.from('accounts').select(ACCOUNT_COLS).eq('owner_id', s.user.id).order('created_at'),
+          supabase.rpc('is_banned_me')
         ]),
         TIMEOUT_MS
       );
       if (roles.error) throw roles.error;
       if (accs.error) throw accs.error;
+      setIsBanned(ban.data === true);
       const rs = (roles.data ?? []).map((r) => r.role);
       setIsOwner(rs.includes('owner'));
       setIsAdmin(rs.includes('admin') || rs.includes('owner'));
@@ -138,7 +143,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <Ctx.Provider value={{
       loading, accountsReady, loadError, session, user: session?.user ?? null,
-      isAdmin, isOwner, accounts, refresh, signOut
+      isAdmin, isOwner, isBanned, accounts, refresh, signOut
     }}>
       {children}
     </Ctx.Provider>
