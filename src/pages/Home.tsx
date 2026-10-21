@@ -13,11 +13,53 @@ const ECOSYSTEM = [
   { href: '#/shop', title: 'KADR Market', text: 'Texnika sotuvi va arendasi (keyingi reliz).' }
 ];
 
-const SECTORS = [
-  { title: 'Videografiya', text: 'Kamera, yorug‘lik va kadr — loyihaning ko‘zi.', img: 'images/camera-forest.jpg', alt: 'Kamera bilan suratga olish' },
-  { title: 'Fotografiya', text: 'Kompozitsiya, yorug‘lik va lahza.', img: 'images/photographer.jpg', alt: 'Fotograf kamera bilan' },
-  { title: 'Montaj', text: 'Hikoyani to‘g‘ri ritm bilan yig‘ish.', img: 'images/editing-dark.jpg', alt: 'Video montaj dasturi ekrani' }
+const CAMERA_PHOTOS = [
+  { src: 'images/camera-forest.jpg', alt: 'Kamera bilan o‘rmonda suratga olish', caption: 'Videografiya' },
+  { src: 'images/photographer.jpg', alt: 'Fotograf kamera bilan', caption: 'Fotografiya' },
+  { src: 'images/sandisk-camera.jpg', alt: 'Kameraga xotira kartasi joylash', caption: 'Kamera va jihozlar' }
 ];
+
+function CameraCarousel() {
+  const [i, setI] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const n = CAMERA_PHOTOS.length;
+  const angle = 360 / n;
+  const radius = Math.round(150 / Math.tan(Math.PI / n)); // faces sit on a prism of side ~300px
+
+  useEffect(() => {
+    if (paused) return;
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
+    const t = window.setInterval(() => setI((x) => (x + 1) % n), 4000);
+    return () => window.clearInterval(t);
+  }, [paused, n]);
+
+  return (
+    <div className="cam-carousel" role="region" aria-roledescription="karusel" aria-label="Kamera rasmlari"
+      onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)} onBlur={() => setPaused(false)}>
+      <div className="cam-stage">
+        <div className="cam-ring" style={{ transform: `translateZ(-${radius}px) rotateY(${-i * angle}deg)` }}>
+          {CAMERA_PHOTOS.map((p, k) => (
+            <figure key={p.src} className="cam-face" aria-hidden={k !== i}
+              style={{ transform: `rotateY(${k * angle}deg) translateZ(${radius}px)` }}>
+              <img src={p.src} alt={p.alt} loading="lazy" />
+              <figcaption>{p.caption}</figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+      <div className="row" style={{ justifyContent: 'center', gap: 10, marginTop: 14 }}>
+        <button className="btn sm" onClick={() => setI((x) => (x - 1 + n) % n)} aria-label="Oldingi rasm">←</button>
+        {CAMERA_PHOTOS.map((p, k) => (
+          <button key={p.src} className={`cam-dot ${k === i ? 'on' : ''}`} aria-label={`${p.caption} rasmi`}
+            aria-current={k === i} onClick={() => setI(k)} />
+        ))}
+        <button className="btn sm" onClick={() => setI((x) => (x + 1) % n)} aria-label="Keyingi rasm">→</button>
+      </div>
+    </div>
+  );
+}
 
 export function Home() {
   const [talents, setTalents] = useState<Account[] | null>(null);
@@ -55,14 +97,8 @@ export function Home() {
           kasblarini ko‘rsatadi, mijozlar va kompaniyalar kerakli jamoani topadi, o‘quv markazlari esa o‘z
           kurslarini e’lon qiladi.
         </p>
-        <div className="grid" style={{ marginTop: 16 }}>
-          {SECTORS.map((x) => (
-            <div key={x.title} className="card">
-              <img src={x.img} alt={x.alt} loading="lazy" style={{ width: '100%', aspectRatio: '4 / 3', objectFit: 'cover', borderRadius: 10, marginBottom: 12 }} />
-              <h3 style={{ margin: '0 0 6px' }}>{x.title}</h3>
-              <p className="small" style={{ margin: 0 }}>{x.text}</p>
-            </div>
-          ))}
+        <div style={{ marginTop: 16 }}>
+          <CameraCarousel />
         </div>
 
         <div className="card" style={{ marginTop: 16 }}>
