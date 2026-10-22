@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { useAuth } from '../lib/auth';
 import { supabase } from '../lib/supabase';
 import { go } from '../lib/router';
+import { NotificationBell } from './Notifications';
 
 const PUBLIC_LINKS: [string, string][] = [
   ['/talent', 'Mutaxassislar'], ['/company', 'Kompaniyalar'], ['/center', 'O‘quv markazlari'],
@@ -25,6 +26,7 @@ export function Layout({ path, children }: { path: string; children: ReactNode }
           <div className="spacer" />
           {user ? (
             <div className="row">
+              <NotificationBell />
               <a className="btn sm ghost" href="#/dashboard">Kabinet</a>
               {isAdmin && <a className="btn sm ghost" href="#/boshqaruv">Boshqaruv</a>}
               <button className="btn sm" onClick={async () => { await signOut(); go('/'); }}>Chiqish</button>
