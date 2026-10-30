@@ -16,6 +16,7 @@ import { Control } from './pages/Control';
 import { Legal } from './pages/Legal';
 import { NotFound } from './pages/NotFound';
 import { RequireAuth } from './components/RequireAuth';
+import { DecisionHelper } from './components/Helper';
 
 const ROUTES: [string, (p: Record<string, string>) => JSX.Element, boolean?][] = [
   ['/', () => <Home />],
@@ -78,6 +79,7 @@ export default function App() {
           </div>
         ) : loading ? <Loading /> : page}
       </div>
+      <DecisionHelper />
     </Layout>
   );
 }
