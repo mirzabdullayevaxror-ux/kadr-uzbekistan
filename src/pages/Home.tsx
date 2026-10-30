@@ -3,6 +3,7 @@ import { supabase, ACCOUNT_COLS } from '../lib/supabase';
 import type { Account } from '../lib/auth';
 import { Avatar, Empty, Loading, errMsg, ErrorBox } from '../components/ui';
 import { KIND_PATH } from '../lib/constants';
+import { AiChat } from '../components/AiChat';
 
 const ECOSYSTEM = [
   { href: '#/talent', title: 'Mutaxassislar', text: 'Videograf, montajyor, fotograf, Brand Face va 30+ kasb.' },
@@ -89,6 +90,8 @@ export function Home() {
           <a className="btn" href="#/register">Ro‘yxatdan o‘tish</a>
         </div>
       </section>
+
+      <AiChat />
 
       <section aria-labelledby="about-title" style={{ marginTop: 40 }}>
         <h2 id="about-title">Biz haqimizda</h2>
