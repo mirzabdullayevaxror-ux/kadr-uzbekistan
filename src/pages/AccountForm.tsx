@@ -6,6 +6,7 @@ import { KIND_LABEL, NEEDS_APPROVAL, PROFESSIONS, COMPANY_TYPES, type AccountKin
 import { ErrorBox, Loading, errMsg } from '../components/ui';
 import { go } from '../lib/router';
 import { useRegions } from '../lib/regions';
+import { AiAssist } from '../components/AiAssist';
 
 const USERNAME_RE = /^[a-z0-9][a-z0-9_-]{2,39}$/;
 const PHONE_RE = /^\+998\d{9}$/;
@@ -193,7 +194,8 @@ export function AccountForm({ kind, editId }: { kind?: string; editId?: string }
         </div>
 
         <div className="field"><label htmlFor="ab">Haqida</label>
-          <textarea id="ab" className="textarea" maxLength={4000} value={form.about} onChange={(e) => set('about', e.target.value)} /></div>
+          <textarea id="ab" className="textarea" maxLength={4000} value={form.about} onChange={(e) => set('about', e.target.value)} />
+          <AiAssist task="profile" onResult={(t) => set('about', t.slice(0, 4000))} /></div>
 
         <div className="two">
           <div className="field"><label htmlFor="ph">Telefon</label>

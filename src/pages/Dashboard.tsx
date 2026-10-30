@@ -5,6 +5,7 @@ import { KIND_LABEL, KIND_PATH, NEEDS_APPROVAL, EMPLOYMENT, WORK_MODE, VACANCY_C
 import { Empty, ErrorBox, Loading, StatusBadge, errMsg, fmtDate, fmtMoney } from '../components/ui';
 import { go } from '../lib/router';
 import { useRegions } from '../lib/regions';
+import { AiAssist } from '../components/AiAssist';
 
 const ALL_KINDS: AccountKind[] = ['mutaxassis', 'mijoz', 'kompaniya', 'sotuvchi', 'oquv_markazi'];
 const VCOLS = 'id,account_id,kind,title,category,employment_type,work_mode,region_code,city,salary_min,salary_max,deadline,status,reject_reason,created_at';
@@ -140,7 +141,8 @@ function VacancyManager({ account }: { account: Account }) {
           <div className="field"><label htmlFor={`t-${account.id}`}>Sarlavha</label>
             <input id={`t-${account.id}`} className="input" value={f.title} maxLength={150} onChange={(e) => setF({ ...f, title: e.target.value })} /></div>
           <div className="field"><label htmlFor={`d-${account.id}`}>Tavsif</label>
-            <textarea id={`d-${account.id}`} className="textarea" value={f.description} maxLength={6000} onChange={(e) => setF({ ...f, description: e.target.value })} /></div>
+            <textarea id={`d-${account.id}`} className="textarea" value={f.description} maxLength={6000} onChange={(e) => setF({ ...f, description: e.target.value })} />
+            <AiAssist task="vacancy" onResult={(t) => setF((prev) => ({ ...prev, description: t.slice(0, 6000) }))} /></div>
           <div className="two">
             {f.kind === 'vacancy' && <div className="field"><label htmlFor={`e-${account.id}`}>Ish turi</label>
               <select id={`e-${account.id}`} className="select" value={f.employment_type} onChange={(e) => setF({ ...f, employment_type: e.target.value })}>
