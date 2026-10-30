@@ -32,15 +32,16 @@ export function AiAssist({ task, onResult }: { task: 'profile' | 'vacancy'; onRe
 
   if (!open) {
     return (
-      <button type="button" className="btn sm ghost" onClick={() => setOpen(true)}>
+      <button type="button" className="btn" onClick={() => setOpen(true)}
+        style={{ width: '100%', marginTop: 10, padding: '14px 18px', fontSize: 16, fontWeight: 700, background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 12 }}>
         ✨ AI bilan yozish
       </button>
     );
   }
 
   return (
-    <div className="card" style={{ padding: 12, marginTop: 8 }}>
-      <label htmlFor={`ai-${task}`} className="small">Qisqa ma’lumot yozing, AI matnni tayyorlaydi</label>
+    <div className="card" style={{ padding: 16, marginTop: 10, border: '2px solid var(--accent)' }}>
+      <label htmlFor={`ai-${task}`} style={{ fontWeight: 700, display: 'block', marginBottom: 6 }}>✨ Qisqa ma’lumot yozing, AI matnni tayyorlaydi</label>
       <textarea id={`ai-${task}`} className="textarea" maxLength={2000} value={brief}
         onChange={(e) => setBrief(e.target.value)} placeholder={task === 'profile' ? 'Masalan: 5 yil video montaj, Premiere va DaVinci, to‘y va reklama videolari' : 'Masalan: Video montajchi kerak, haftasiga 3 kun, Toshkentda'} />
       {error && <p className="small" role="alert" style={{ color: '#ffb3b3' }}>{error}</p>}
