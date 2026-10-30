@@ -1,5 +1,5 @@
-// AI writing assistant (Gemini). Only logged-in users can call it.
-// The API key is read from the Edge Function secret GEMINI_API_KEY and never reaches the browser.
+// AI writing assistant (Claude). Only logged-in users can call it.
+// The API key is read from the Edge Function secret ANTHROPIC_API_KEY and never reaches the browser.
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const cors = {
@@ -8,7 +8,7 @@ const cors = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS'
 };
 
-const MODEL = Deno.env.get('GEMINI_MODEL') ?? 'gemini-3.8-flash';
+const MODEL = Deno.env.get('ANTHROPIC_MODEL') ?? 'claude-haiku-5-5';
 const MAX_INPUT = 2000;
 
 const INSTRUCTIONS: Record<string, string> = {
@@ -47,21 +47,27 @@ Deno.serve(async (req) => {
     return json({ error: `Matn 1 dan ${MAX_INPUT} belgigacha bo‘lishi kerak` }, 400);
   }
 
-  const key = Deno.env.get('GEMINI_API_KEY');
+  const key = Deno.env.get('ANTHROPIC_API_KEY');
   if (!key) return json({ error: 'AI xizmati hali sozlanmagan' }, 503);
 
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`, {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01'
+    },
     body: JSON.stringify({
-      contents: [{ role: 'user', parts: [{ text: `${INSTRUCTIONS[task]}\n\nMa’lumot:\n${text}` }] }]
+      model: MODEL,
+      max_tokens: 1024,
+      messages: [{ role: 'user', content: `${INSTRUCTIONS[task]}\n\nMa’lumot:\n${text}` }]
     })
   });
   if (!res.ok) return json({ error: 'AI xizmatida xato. Keyinroq urinib ko‘ring' }, 502);
 
   const out = await res.json();
-  const reply: string = (out?.candidates?.[0]?.content?.parts ?? [])
-    .map((p: { text?: string }) => p.text ?? '')
+  const reply: string = (out?.content ?? [])
+    .map((p: { type?: string; text?: string }) => (p.type === 'text' ? p.text ?? '' : ''))
     .join('')
     .trim();
   if (!reply) return json({ error: 'AI javob bermadi. Matnni o‘zgartirib ko‘ring' }, 502);
